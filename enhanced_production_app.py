@@ -60,18 +60,18 @@ def upload_file():
         if file_ext not in allowed_extensions:
             return jsonify({'success': False, 'error': f'Unsupported file type: {file_ext}'})
         
-        # Check file size after saving
+        # Generate unique filename
+        file_id = str(uuid.uuid4())
+        filename = f"{file_id}{file_ext}"
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        
+        # Save and check file size
         file.save(filepath)
         file_size = os.path.getsize(filepath)
         
         if file_size > 64 * 1024 * 1024:
             os.remove(filepath)
             return jsonify({'success': False, 'error': 'File size must be less than 64MB'})
-        
-        # Generate unique filename
-        file_id = str(uuid.uuid4())
-        filename = f"{file_id}{file_ext}"
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
         
         result = {
             'success': True,
