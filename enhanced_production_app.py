@@ -7,11 +7,11 @@ import uuid
 import json
 from datetime import datetime
 import logging
-from production_engine import ProductionFloorPlanEngine
-from advanced_cad_processor import AdvancedCADProcessor
-from intelligent_layout_optimizer import IntelligentLayoutOptimizer
-from pixel_perfect_renderer import PixelPerfectRenderer
-from autodesk_forge_processor import forge_processor
+from src.engines.production_engine import ProductionFloorPlanEngine
+from src.processors.advanced_cad_processor import AdvancedCADProcessor
+from src.optimizers.intelligent_layout_optimizer import IntelligentLayoutOptimizer
+from src.renderers.pixel_perfect_renderer import PixelPerfectRenderer
+from src.processors.autodesk_forge_processor import forge_processor
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -1,15 +1,27 @@
-# Floorplan Genie - Professional CAD Analysis & Îlot Placement Engine
+# 🏗️ Floorplan Genie - Enterprise CAD Analysis & Îlot Placement Engine
 
-A production-grade floor plan analysis and rendering engine with advanced CAD processing, intelligent furniture placement, and corridor network generation.
+**Production-grade floor plan analysis and rendering engine with Autodesk Forge integration, intelligent furniture placement, and corridor network generation.**
 
-## 🏗️ Features
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+
+🚀 **Live Demo**: [CAD Genie on Render](https://cadginie-august.onrender.com)  
+📦 **Repository**: [GitHub - CADGinie-August](https://github.com/rehmanul/CADGinie-August.git)
+
+## 🏗️ Enterprise Features
+
+### 🔥 Autodesk Forge Integration
+- **Enterprise-grade CAD processing** with Autodesk Forge API
+- **Professional credentials**: Active client authentication
+- **Multi-format support**: DXF, DWG, RVT, IPT, PDF with cloud processing
+- **Thumbnail generation** and metadata extraction
+- **Fallback processing** for maximum reliability
 
 ### Advanced CAD File Processing
-- **Multi-format support**: DXF, DWG, PDF with layer-aware extraction
+- **Dual-mode processing**: Forge API + Standard processing
+- **Layer-aware extraction** with computer vision
 - **Automatic scale detection** and unit conversion
 - **Element classification**: Walls, doors, windows, restricted zones, entrances
 - **Geometric validation** and correction
-- **Multi-sheet document support**
 
 ### Intelligent Îlot Placement Engine
 - **Multiple algorithms**: Grid-based, random optimization, edge-following
@@ -59,30 +71,36 @@ python app.py
 4. **Access the web interface**
 Open your browser and navigate to: `http://localhost:5000`
 
-## 📁 Project Structure
+## 📁 Production Project Structure
 
 ```
-floorplan-generator/
-├── app.py                 # Flask web application
-├── core_logic.py          # Main processing engine
-├── requirements.txt       # Python dependencies
-├── parsers/
-│   ├── __init__.py
-│   ├── dwg_dxf_parser.py  # CAD file parser
-│   └── pdf_parser.py      # PDF parser with CV
-├── geometry_processor.py  # Architectural intelligence
-├── layout_optimizer.py    # Îlot placement algorithms
-├── visualizer.py          # Professional rendering
-├── templates/
-│   ├── index.html         # Main interface
-│   ├── results.html       # Results display
-│   ├── gallery.html       # Generated plans gallery
-│   └── about.html         # Technical documentation
-├── static/
-│   ├── style.css          # Professional styling
-│   └── script.js          # Interactive features
-├── uploads/               # Temporary file storage
-└── output_files/          # Generated floor plans
+FLOORPLAN_GENIE/
+├── 🚀 Production Apps
+│   ├── app.py                          # Main entry point
+│   ├── enhanced_production_app.py      # Enterprise app with Forge
+│   └── production_app.py               # Standard production app
+├── 📦 Core Engine (src/)
+│   ├── processors/
+│   │   ├── advanced_cad_processor.py       # Multi-format CAD processing
+│   │   └── autodesk_forge_processor.py     # Enterprise Forge integration
+│   ├── optimizers/
+│   │   └── intelligent_layout_optimizer.py # AI-powered placement
+│   ├── renderers/
+│   │   └── pixel_perfect_renderer.py       # Professional visualization
+│   └── engines/
+│       ├── production_engine.py            # Main processing pipeline
+│       └── enhanced_production_engine.py   # Forge-enhanced pipeline
+├── 🌐 Web Interface
+│   ├── templates/enhanced_production_index.html
+│   └── static/ (CSS, JS, assets)
+├── 📧 Deployment
+│   ├── Dockerfile                      # Container configuration
+│   ├── render.yaml                     # Render.com deployment
+│   ├── enhanced_requirements.txt       # Production dependencies
+│   └── config.py                       # Environment configuration
+├── uploads/                            # File upload storage
+├── output_files/                       # Generated floor plans
+└── Backup/                             # Legacy/unused files
 ```
 
 ## 🔧 Usage

@@ -2,6 +2,8 @@
 
 import ezdxf
 import fitz  # PyMuPDF
+import os
+os.environ['OPENCV_IO_ENABLE_OPENEXR'] = '1'
 import cv2
 import numpy as np
 from shapely.geometry import Polygon, LineString, Point, MultiPolygon

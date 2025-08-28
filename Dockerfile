@@ -13,13 +13,19 @@ RUN apt-get update && apt-get install -y \
     libspatialindex-dev \
     libffi-dev \
     libssl-dev \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
-COPY requirements.txt .
+COPY enhanced_requirements.txt .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r enhanced_requirements.txt
 
 # Copy application code
 COPY . .
@@ -40,4 +46,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:5000/api/health || exit 1
 
 # Run application
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "production_app:app", "--workers", "2", "--timeout", "120"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "enhanced_production_app:app", "--workers", "2", "--timeout", "120"]
