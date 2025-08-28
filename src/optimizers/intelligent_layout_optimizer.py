@@ -55,10 +55,14 @@ class IntelligentLayoutOptimizer:
             
             if not optimization_space or optimization_space.area < 0.1:
                 logger.warning(f"Optimization space area: {optimization_space.area if optimization_space else 'None'}")
-                # Create minimal fallback space
+                # Create working space from file bounds
                 from shapely.geometry import box
-                optimization_space = box(0, 0, 20, 20)  # 20x20m fallback space
-                logger.info("Using fallback optimization space: 400m²")
+                if 'walls' in geometry and geometry['walls']:
+                    bounds = geometry['walls'].bounds
+                    optimization_space = box(bounds[0], bounds[1], bounds[2], bounds[3])
+                else:
+                    optimization_space = box(0, 0, 50, 30)  # Standard room size
+                logger.info(f"Using fallback optimization space: {optimization_space.area:.1f}m²")
             
             # Run multiple optimization algorithms
             optimization_results = []

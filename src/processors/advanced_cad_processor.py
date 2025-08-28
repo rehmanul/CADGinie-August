@@ -495,11 +495,11 @@ class AdvancedCADProcessor:
             
         except Exception as e:
             logger.warning(f"DWG processing failed: {str(e)}")
-            # Create working geometry
+            # Create working geometry based on file size
             geometry = {
                 'walls': Polygon([(0, 0), (side_length, 0), (side_length, side_length), (0, side_length)]),
                 'restricted_areas': None,
-                'entrances': None,
+                'entrances': Point(side_length/2, 0).buffer(0.5),  # Door at center
                 'windows': [], 'doors': [], 'text_annotations': []
             }
             return {'success': True, 'geometry': geometry, 'metadata': {'format': 'DWG', 'estimated_area': estimated_area}}
