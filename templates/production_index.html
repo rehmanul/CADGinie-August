@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floorplan Genie - Professional CAD Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .upload-zone {
+            border: 2px dashed #cbd5e0;
+            transition: all 0.3s ease;
+        }
+        .upload-zone:hover {
+            border-color: #667eea;
+            background-color: #f7fafc;
+        }
+        .upload-zone.dragover {
+            border-color: #667eea;
+            background-color: #ebf8ff;
+        }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg">
+    <!-- Header -->
+    <header class="glass-effect">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-drafting-compass text-3xl text-white"></i>
+                    <h1 class="text-2xl font-bold text-white">Floorplan Genie</h1>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#features" class="text-white hover:text-blue-200 transition">Features</a>
+                    <a href="#api" class="text-white hover:text-blue-200 transition">API</a>
+                    <a href="#about" class="text-white hover:text-blue-200 transition">About</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-12">
+        <!-- Hero Section -->
+        <div class="text-center mb-12">
+            <h2 class="text-5xl font-bold text-white mb-6">
+                Professional CAD Analysis & Îlot Placement Engine
+            </h2>
+            <p class="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+                Transform your CAD files into intelligent, professional floor plans with advanced 
+                architectural algorithms, pixel-perfect rendering, and intelligent îlot placement.
+            </p>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+                    <i class="fas fa-upload mr-3 text-blue-600"></i>
+                    Upload Your CAD File
+                </h3>
+                
+                <!-- File Upload Zone -->
+                <div id="uploadZone" class="upload-zone rounded-xl p-12 text-center mb-6">
+                    <i class="fas fa-cloud-upload-alt text-6xl text-gray-400 mb-4"></i>
+                    <p class="text-xl text-gray-600 mb-2">Drag & drop your CAD file here</p>
+                    <p class="text-gray-500 mb-4">or click to browse</p>
+                    <p class="text-sm text-gray-400">Supports DXF, DWG, PDF files (max 64MB)</p>
+                    <input type="file" id="fileInput" class="hidden" accept=".dxf,.dwg,.pdf">
+                </div>
+
+                <!-- File Info -->
+                <div id="fileInfo" class="hidden bg-blue-50 rounded-lg p-4 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-file-alt text-blue-600"></i>
+                            <div>
+                                <p id="fileName" class="font-semibold text-gray-800"></p>
+                                <p id="fileSize" class="text-sm text-gray-600"></p>
+                            </div>
+                        </div>
+                        <button id="removeFile" class="text-red-500 hover:text-red-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Configuration Panel -->
+                <div id="configPanel" class="hidden">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Configuration</h4>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-6">
+                        <!-- Îlot Specifications -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Îlot Dimensions (width×height)
+                            </label>
+                            <input type="text" id="islands" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="3x2,4x3,5x4,2x2" value="3x2,4x3,5x4">
+                            <p class="text-xs text-gray-500 mt-1">Comma-separated dimensions in meters</p>
+                        </div>
+
+                        <!-- Corridor Width -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Corridor Width (m)
+                            </label>
+                            <input type="number" id="corridorWidth" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   min="0.8" max="3.0" step="0.1" value="1.2">
+                        </div>
+
+                        <!-- Coverage Profile -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Coverage Profile
+                            </label>
+                            <select id="coverageProfile" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="10%">Low (10%)</option>
+                                <option value="25%" selected>Medium (25%)</option>
+                                <option value="30%">High (30%)</option>
+                                <option value="35%">Maximum (35%)</option>
+                            </select>
+                        </div>
+
+                        <!-- Wall Layer -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Wall Layer Name
+                            </label>
+                            <input type="text" id="wallLayer" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="0" value="0">
+                        </div>
+
+                        <!-- Prohibited Layer -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Restricted Zone Layer
+                            </label>
+                            <input type="text" id="prohibitedLayer" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="PROHIBITED" value="PROHIBITED">
+                        </div>
+
+                        <!-- Entrance Layer -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Entrance/Door Layer
+                            </label>
+                            <input type="text" id="entranceLayer" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="DOORS" value="DOORS">
+                        </div>
+                    </div>
+
+                    <!-- Process Button -->
+                    <button id="processBtn" 
+                            class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-4 px-8 rounded-lg hover:from-blue-700 hover:to-purple-700 transition duration-300 transform hover:scale-105">
+                        <i class="fas fa-magic mr-3"></i>
+                        Generate Professional Floor Plan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div id="progressSection" class="hidden bg-white rounded-2xl shadow-2xl p-8 mb-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Processing Your Floor Plan</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div id="step1" class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                            <i class="fas fa-spinner fa-spin text-white"></i>
+                        </div>
+                        <span class="text-gray-700">Advanced CAD file processing...</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div id="step2" class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                            <span class="text-white font-bold">2</span>
+                        </div>
+                        <span class="text-gray-500">Intelligent îlot placement...</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div id="step3" class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                            <span class="text-white font-bold">3</span>
+                        </div>
+                        <span class="text-gray-500">Corridor network generation...</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div id="step4" class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                            <span class="text-white font-bold">4</span>
+                        </div>
+                        <span class="text-gray-500">Pixel-perfect rendering...</span>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <div class="bg-gray-200 rounded-full h-2">
+                        <div id="progressBar" class="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="hidden bg-white rounded-2xl shadow-2xl p-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                    Professional Floor Plan Generated
+                </h3>
+                
+                <!-- Result Image -->
+                <div class="mb-6">
+                    <img id="resultImage" class="w-full rounded-lg shadow-lg" alt="Generated Floor Plan">
+                </div>
+
+                <!-- Statistics -->
+                <div id="statistics" class="grid md:grid-cols-3 gap-6 mb-6">
+                    <!-- Stats will be populated by JavaScript -->
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-4">
+                    <button id="downloadBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">
+                        <i class="fas fa-download mr-2"></i>Download High-Res
+                    </button>
+                    <button id="newPlanBtn" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                        <i class="fas fa-plus mr-2"></i>Generate New Plan
+                    </button>
+                    <button id="shareBtn" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition">
+                        <i class="fas fa-share mr-2"></i>Share Result
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <section id="features" class="mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-4xl font-bold text-white mb-4">Production-Grade Features</h3>
+                <p class="text-xl text-blue-100">Advanced CAD processing with architectural intelligence</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="glass-effect rounded-2xl p-8 text-center">
+                    <i class="fas fa-file-code text-4xl text-blue-300 mb-4"></i>
+                    <h4 class="text-xl font-bold text-white mb-3">Multi-Format CAD Processing</h4>
+                    <p class="text-blue-100">DXF, DWG, PDF with layer-aware extraction and automatic scale detection</p>
+                </div>
+                
+                <div class="glass-effect rounded-2xl p-8 text-center">
+                    <i class="fas fa-brain text-4xl text-purple-300 mb-4"></i>
+                    <h4 class="text-xl font-bold text-white mb-3">Intelligent Îlot Placement</h4>
+                    <p class="text-blue-100">AI-powered optimization with accessibility compliance and building codes</p>
+                </div>
+                
+                <div class="glass-effect rounded-2xl p-8 text-center">
+                    <i class="fas fa-route text-4xl text-green-300 mb-4"></i>
+                    <h4 class="text-xl font-bold text-white mb-3">Corridor Network Generation</h4>
+                    <p class="text-blue-100">Graph-based pathfinding with minimum spanning tree algorithms</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript -->
+    <script>
+        let currentFileId = null;
+        let processingInterval = null;
+
+        // DOM Elements
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const configPanel = document.getElementById('configPanel');
+        const progressSection = document.getElementById('progressSection');
+        const resultsSection = document.getElementById('resultsSection');
+
+        // File Upload Handling
+        uploadZone.addEventListener('click', () => fileInput.click());
+        uploadZone.addEventListener('dragover', handleDragOver);
+        uploadZone.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        }
+
+        async function handleFile(file) {
+            // Validate file
+            const validTypes = ['.dxf', '.dwg', '.pdf'];
+            const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+            
+            if (!validTypes.includes(fileExt)) {
+                alert('Please select a valid CAD file (DXF, DWG, or PDF)');
+                return;
+            }
+
+            if (file.size > 64 * 1024 * 1024) {
+                alert('File size must be less than 64MB');
+                return;
+            }
+
+            // Upload file
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    currentFileId = result.file_id;
+                    showFileInfo(file, result);
+                    showConfigPanel();
+                } else {
+                    alert('Upload failed: ' + result.error);
+                }
+            } catch (error) {
+                alert('Upload error: ' + error.message);
+            }
+        }
+
+        function showFileInfo(file, result) {
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(result.size);
+            fileInfo.classList.remove('hidden');
+        }
+
+        function showConfigPanel() {
+            configPanel.classList.remove('hidden');
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Process Floor Plan
+        document.getElementById('processBtn').addEventListener('click', processFloorPlan);
+
+        async function processFloorPlan() {
+            if (!currentFileId) {
+                alert('Please upload a file first');
+                return;
+            }
+
+            // Get configuration
+            const config = {
+                file_id: currentFileId,
+                islands: document.getElementById('islands').value,
+                corridor_width: parseFloat(document.getElementById('corridorWidth').value),
+                coverage_profile: document.getElementById('coverageProfile').value,
+                wall_layer: document.getElementById('wallLayer').value,
+                prohibited_layer: document.getElementById('prohibitedLayer').value,
+                entrance_layer: document.getElementById('entranceLayer').value
+            };
+
+            // Show progress
+            showProgress();
+
+            try {
+                const response = await fetch('/api/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showResults(result);
+                } else {
+                    alert('Processing failed: ' + result.error);
+                    hideProgress();
+                }
+            } catch (error) {
+                alert('Processing error: ' + error.message);
+                hideProgress();
+            }
+        }
+
+        function showProgress() {
+            configPanel.classList.add('hidden');
+            progressSection.classList.remove('hidden');
+            
+            // Simulate progress
+            let progress = 0;
+            processingInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                
+                document.getElementById('progressBar').style.width = progress + '%';
+                
+                // Update steps
+                if (progress > 25) updateStep(2);
+                if (progress > 50) updateStep(3);
+                if (progress > 75) updateStep(4);
+            }, 500);
+        }
+
+        function updateStep(stepNum) {
+            const step = document.getElementById('step' + stepNum);
+            step.className = 'w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center';
+            step.innerHTML = '<i class="fas fa-spinner fa-spin text-white"></i>';
+            
+            // Update previous step to completed
+            if (stepNum > 1) {
+                const prevStep = document.getElementById('step' + (stepNum - 1));
+                prevStep.className = 'w-8 h-8 rounded-full bg-green-600 flex items-center justify-center';
+                prevStep.innerHTML = '<i class="fas fa-check text-white"></i>';
+            }
+        }
+
+        function hideProgress() {
+            progressSection.classList.add('hidden');
+            configPanel.classList.remove('hidden');
+            if (processingInterval) {
+                clearInterval(processingInterval);
+            }
+        }
+
+        function showResults(result) {
+            // Complete progress
+            document.getElementById('progressBar').style.width = '100%';
+            updateStep(4);
+            document.getElementById('step4').className = 'w-8 h-8 rounded-full bg-green-600 flex items-center justify-center';
+            document.getElementById('step4').innerHTML = '<i class="fas fa-check text-white"></i>';
+            
+            setTimeout(() => {
+                progressSection.classList.add('hidden');
+                resultsSection.classList.remove('hidden');
+                
+                // Show result image
+                document.getElementById('resultImage').src = result.result_url;
+                
+                // Show statistics
+                showStatistics(result.statistics);
+                
+                // Setup download
+                document.getElementById('downloadBtn').onclick = () => {
+                    window.open(result.download_url, '_blank');
+                };
+                
+                if (processingInterval) {
+                    clearInterval(processingInterval);
+                }
+            }, 1000);
+        }
+
+        function showStatistics(stats) {
+            const statisticsDiv = document.getElementById('statistics');
+            statisticsDiv.innerHTML = `
+                <div class="bg-blue-50 rounded-lg p-4 text-center">
+                    <i class="fas fa-home text-2xl text-blue-600 mb-2"></i>
+                    <p class="text-sm text-gray-600">Total Area</p>
+                    <p class="text-xl font-bold text-gray-800">${stats.total_area?.toFixed(1) || 0}m²</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4 text-center">
+                    <i class="fas fa-cube text-2xl text-green-600 mb-2"></i>
+                    <p class="text-sm text-gray-600">Îlots Placed</p>
+                    <p class="text-xl font-bold text-gray-800">${stats.islands_placed || 0}</p>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4 text-center">
+                    <i class="fas fa-percentage text-2xl text-purple-600 mb-2"></i>
+                    <p class="text-sm text-gray-600">Coverage</p>
+                    <p class="text-xl font-bold text-gray-800">${stats.coverage_percentage?.toFixed(1) || 0}%</p>
+                </div>
+            `;
+        }
+
+        // New Plan Button
+        document.getElementById('newPlanBtn').addEventListener('click', () => {
+            resultsSection.classList.add('hidden');
+            configPanel.classList.remove('hidden');
+        });
+
+        // Remove File Button
+        document.getElementById('removeFile').addEventListener('click', () => {
+            currentFileId = null;
+            fileInfo.classList.add('hidden');
+            configPanel.classList.add('hidden');
+            fileInput.value = '';
+        });
+    </script>
+</body>
+</html>

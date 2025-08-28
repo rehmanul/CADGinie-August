@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: floorplan-genie
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT production_app:app --workers 2 --timeout 120 --max-requests 1000 --preload
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: MAX_CONTENT_LENGTH
+        value: "67108864"
+      - key: PYTHONPATH
+        value: "."
+    disk:
+      name: floorplan-storage
+      mountPath: /opt/render/project/src/uploads
+      sizeGB: 1
+    healthCheckPath: /api/health
+    autoDeploy: true
+    
+databases:
+  - name: floorplan-redis
+    plan: starter
+    
+regions:
+  - oregon

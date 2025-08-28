@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floorplan Genie - Production Engine</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; color: white; margin-bottom: 40px; }
+        .header h1 { font-size: 3rem; font-weight: 700; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header p { font-size: 1.2rem; opacity: 0.9; }
+        .main-card { background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; margin-bottom: 30px; }
+        .card-header { background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%); color: white; padding: 30px; text-align: center; }
+        .card-header h2 { font-size: 2rem; margin-bottom: 10px; }
+        .card-body { padding: 40px; }
+        .upload-section { text-align: center; margin-bottom: 40px; }
+        .file-upload { position: relative; display: inline-block; margin-bottom: 20px; }
+        .file-upload input[type=file] { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+        .file-upload-btn {
+            display: inline-block; padding: 20px 40px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            color: white; border-radius: 15px; font-size: 1.1rem; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease; border: none;
+        }
+        .file-upload-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3); }
+        .file-info { margin-top: 15px; padding: 15px; background: #F3F4F6; border-radius: 10px; display: none; }
+        .parameters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 40px; }
+        .parameter-group { background: #F9FAFB; padding: 25px; border-radius: 15px; border: 2px solid #E5E7EB; }
+        .parameter-group h3 { color: #374151; margin-bottom: 15px; font-size: 1.1rem; font-weight: 600; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #374151; }
+        .form-control {
+            width: 100%; padding: 12px 15px; border: 2px solid #E5E7EB; border-radius: 10px;
+            font-size: 1rem; transition: border-color 0.3s ease;
+        }
+        .form-control:focus { outline: none; border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .coverage-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+        .coverage-btn {
+            padding: 10px; border: 2px solid #E5E7EB; background: white; border-radius: 8px;
+            cursor: pointer; transition: all 0.3s ease; text-align: center; font-weight: 500;
+        }
+        .coverage-btn.active { background: #3B82F6; color: white; border-color: #3B82F6; }
+        .generate-btn {
+            width: 100%; padding: 20px; background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white; border: none; border-radius: 15px; font-size: 1.2rem; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3); }
+        .generate-btn:disabled { background: #9CA3AF; cursor: not-allowed; transform: none; box-shadow: none; }
+        .alert { padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; }
+        .alert-error { background: #FEE2E2; color: #DC2626; border: 1px solid #FECACA; }
+        .loading { display: none; text-align: center; padding: 20px; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3B82F6; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .help-text { font-size: 0.9rem; color: #6B7280; margin-top: 5px; }
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .header h1 { font-size: 2rem; }
+            .parameters-grid { grid-template-columns: 1fr; }
+            .coverage-buttons { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ Floorplan Genie</h1>
+            <p>Production-Grade CAD Analysis & Intelligent Layout Engine</p>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-error">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="main-card">
+            <div class="card-header">
+                <h2>Advanced Floor Plan Generation</h2>
+                <p>Multi-sheet CAD parsing • Intelligent îlot placement • Professional rendering</p>
+            </div>
+            
+            <div class="card-body">
+                <form method="POST" action="/upload" enctype="multipart/form-data" id="uploadForm">
+                    <div class="upload-section">
+                        <div class="file-upload">
+                            <input type="file" name="file" id="fileInput" accept=".dxf,.dwg,.pdf" required>
+                            <div class="file-upload-btn">📁 Select CAD File (DXF, DWG, PDF)</div>
+                        </div>
+                        <div class="file-info" id="fileInfo">
+                            <strong>Selected:</strong> <span id="fileName"></span><br>
+                            <strong>Size:</strong> <span id="fileSize"></span>
+                        </div>
+                        <div class="help-text">Maximum file size: 64MB • Supports multi-sheet documents</div>
+                    </div>
+
+                    <div class="parameters-grid">
+                        <div class="parameter-group">
+                            <h3>🎯 Îlot Configuration</h3>
+                            <div class="form-group">
+                                <label for="islands">Îlot Dimensions (width×height)</label>
+                                <input type="text" class="form-control" name="islands" id="islands" 
+                                       value="2x2,3x2,4x2,3x3,4x3,5x3,4x4,5x4" 
+                                       placeholder="e.g., 3x2,4x3,5x4">
+                                <div class="help-text">Comma-separated dimensions in meters</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Coverage Profile</label>
+                                <input type="hidden" name="coverage_profile" id="coverage_profile" value="medium">
+                                <div class="coverage-buttons">
+                                    <div class="coverage-btn" data-value="low">Low<br>10%</div>
+                                    <div class="coverage-btn active" data-value="medium">Medium<br>25%</div>
+                                    <div class="coverage-btn" data-value="high">High<br>30%</div>
+                                    <div class="coverage-btn" data-value="maximum">Max<br>35%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="parameter-group">
+                            <h3>🚪 Corridor & Access</h3>
+                            <div class="form-group">
+                                <label for="corridor_width">Corridor Width (meters)</label>
+                                <input type="number" class="form-control" name="corridor_width" id="corridor_width" 
+                                       value="1.2" min="0.8" max="3.0" step="0.1">
+                                <div class="help-text">Recommended: 1.2m (range: 0.8-3.0m)</div>
+                            </div>
+                        </div>
+
+                        <div class="parameter-group">
+                            <h3>🏗️ CAD Layer Configuration</h3>
+                            <div class="form-group">
+                                <label for="wall_layer">Wall Layer Name</label>
+                                <input type="text" class="form-control" name="wall_layer" id="wall_layer" 
+                                       value="0" placeholder="e.g., WALLS, 0">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="prohibited_layer">Restricted Zone Layer</label>
+                                <input type="text" class="form-control" name="prohibited_layer" id="prohibited_layer" 
+                                       value="PROHIBITED" placeholder="e.g., PROHIBITED, BLUE">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="entrance_layer">Entrance Layer</label>
+                                <input type="text" class="form-control" name="entrance_layer" id="entrance_layer" 
+                                       value="ENTRANCE" placeholder="e.g., ENTRANCE, RED">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="generate-btn" id="generateBtn">
+                        🚀 Generate Professional Floor Plan
+                    </button>
+                </form>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <h3>Processing Your Floor Plan...</h3>
+                    <p>Advanced CAD parsing and intelligent layout optimization in progress</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            
+            if (file) {
+                fileName.textContent = file.name;
+                fileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+                fileInfo.style.display = 'block';
+                
+                if (file.size > 64 * 1024 * 1024) {
+                    alert('File too large! Maximum size is 64MB.');
+                    e.target.value = '';
+                    fileInfo.style.display = 'none';
+                }
+            } else {
+                fileInfo.style.display = 'none';
+            }
+        });
+
+        document.querySelectorAll('.coverage-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.coverage-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('coverage_profile').value = this.dataset.value;
+            });
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files[0]) {
+                e.preventDefault();
+                alert('Please select a CAD file first.');
+                return;
+            }
+
+            document.querySelector('.card-body').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+        });
+    </script>
+</body>
+</html>

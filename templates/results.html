@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floor Plan Results - Floorplan Genie</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-drafting-compass"></i>
+                <h1>Floorplan Genie</h1>
+            </div>
+            <nav class="nav">
+                <a href="{{ url_for('index') }}">New Plan</a>
+                <a href="{{ url_for('gallery') }}">Gallery</a>
+            </nav>
+        </header>
+
+        <div class="results-section">
+            <div class="results-header">
+                <h2><i class="fas fa-check-circle"></i> Professional Floor Plan Generated</h2>
+                <p>Your CAD file has been processed with advanced architectural intelligence</p>
+            </div>
+
+            <div class="results-content">
+                <div class="image-container">
+                    <img src="{{ url_for('static', filename=image_filename) }}" 
+                         alt="Generated Professional Floor Plan"
+                         class="result-image"
+                         id="resultImage">
+                    
+                    <div class="image-controls">
+                        <button class="btn btn-secondary" onclick="zoomIn()">
+                            <i class="fas fa-search-plus"></i> Zoom In
+                        </button>
+                        <button class="btn btn-secondary" onclick="zoomOut()">
+                            <i class="fas fa-search-minus"></i> Zoom Out
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetZoom()">
+                            <i class="fas fa-expand-arrows-alt"></i> Reset
+                        </button>
+                        <button class="btn btn-secondary" onclick="toggleFullscreen()">
+                            <i class="fas fa-expand"></i> Fullscreen
+                        </button>
+                    </div>
+                </div>
+
+                <div class="results-info">
+                    <div class="info-card">
+                        <h3><i class="fas fa-info-circle"></i> Processing Results</h3>
+                        <div class="stats-grid">
+                            <div class="stat">
+                                <i class="fas fa-home"></i>
+                                <span class="stat-label">Total Area</span>
+                                <span class="stat-value" id="totalArea">Calculated</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-th-large"></i>
+                                <span class="stat-label">Îlots Placed</span>
+                                <span class="stat-value" id="ilotsPlaced">Optimized</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-percentage"></i>
+                                <span class="stat-label">Coverage</span>
+                                <span class="stat-value" id="coverage">Efficient</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-route"></i>
+                                <span class="stat-label">Corridors</span>
+                                <span class="stat-value" id="corridors">Generated</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="legend-card">
+                        <h3><i class="fas fa-palette"></i> Color Legend</h3>
+                        <div class="legend-items">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #6B7280;"></div>
+                                <span>Walls & Structure</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #3B82F6;"></div>
+                                <span>Restricted Zones</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #EF4444;"></div>
+                                <span>Entrances/Exits</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #10B981;"></div>
+                                <span>Small Îlots (&lt;6m²)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #059669;"></div>
+                                <span>Medium Îlots (6-15m²)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #047857;"></div>
+                                <span>Large Îlots (&gt;15m²)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #F472B6;"></div>
+                                <span>Corridors</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="{{ url_for('download_result', filename=image_filename) }}" 
+                   class="btn btn-primary btn-large">
+                    <i class="fas fa-download"></i>
+                    Download High-Resolution Image
+                </a>
+                
+                <button class="btn btn-secondary btn-large" onclick="shareResult()">
+                    <i class="fas fa-share-alt"></i>
+                    Share Result
+                </button>
+                
+                <a href="{{ url_for('index') }}" class="btn btn-outline btn-large">
+                    <i class="fas fa-plus"></i>
+                    Generate Another Plan
+                </a>
+            </div>
+
+            <div class="technical-details">
+                <details>
+                    <summary><i class="fas fa-cog"></i> Technical Processing Details</summary>
+                    <div class="details-content">
+                        <h4>Processing Pipeline:</h4>
+                        <ul>
+                            <li><strong>CAD Parsing:</strong> Multi-format file analysis with layer extraction</li>
+                            <li><strong>Geometry Processing:</strong> Architectural element classification and validation</li>
+                            <li><strong>Layout Optimization:</strong> AI-powered îlot placement with multiple algorithms</li>
+                            <li><strong>Corridor Generation:</strong> Graph-based network optimization</li>
+                            <li><strong>Professional Rendering:</strong> High-resolution visualization with measurements</li>
+                        </ul>
+                        
+                        <h4>Quality Assurance:</h4>
+                        <ul>
+                            <li>Accessibility compliance checking (corridor widths, clearances)</li>
+                            <li>Building code validation (spacing, emergency access)</li>
+                            <li>Geometric accuracy verification</li>
+                            <li>Optimization metrics calculation</li>
+                        </ul>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Floorplan Genie - Professional CAD Analysis Engine</p>
+        </div>
+    </footer>
+
+    <script>
+        let currentZoom = 1;
+        const zoomStep = 0.2;
+        const maxZoom = 3;
+        const minZoom = 0.5;
+
+        function zoomIn() {
+            if (currentZoom < maxZoom) {
+                currentZoom += zoomStep;
+                updateImageZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (currentZoom > minZoom) {
+                currentZoom -= zoomStep;
+                updateImageZoom();
+            }
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            updateImageZoom();
+        }
+
+        function updateImageZoom() {
+            const image = document.getElementById('resultImage');
+            image.style.transform = `scale(${currentZoom})`;
+            image.style.transformOrigin = 'center center';
+        }
+
+        function toggleFullscreen() {
+            const image = document.getElementById('resultImage');
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                image.requestFullscreen();
+            }
+        }
+
+        function shareResult() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Professional Floor Plan - Floorplan Genie',
+                    text: 'Check out this professionally generated floor plan with intelligent îlot placement!',
+                    url: window.location.href
+                });
+            } else {
+                // Fallback: copy URL to clipboard
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    alert('Link copied to clipboard!');
+                });
+            }
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '+' || e.key === '=') {
+                e.preventDefault();
+                zoomIn();
+            } else if (e.key === '-') {
+                e.preventDefault();
+                zoomOut();
+            } else if (e.key === '0') {
+                e.preventDefault();
+                resetZoom();
+            } else if (e.key === 'f' || e.key === 'F') {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+        });
+
+        // Add mouse wheel zoom
+        document.getElementById('resultImage').addEventListener('wheel', function(e) {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        });
+    </script>
+</body>
+</html>

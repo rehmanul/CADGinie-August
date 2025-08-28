@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - Floorplan Genie</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-drafting-compass"></i>
+                <h1>Floorplan Genie</h1>
+            </div>
+            <nav class="nav">
+                <a href="{{ url_for('index') }}">New Plan</a>
+                <a href="{{ url_for('about') }}">About</a>
+            </nav>
+        </header>
+
+        <div class="gallery-section">
+            <div class="gallery-header">
+                <h2><i class="fas fa-images"></i> Generated Floor Plans Gallery</h2>
+                <p>Professional architectural layouts created with our advanced CAD analysis engine</p>
+            </div>
+
+            {% if images %}
+                <div class="gallery-grid">
+                    {% for image in images %}
+                        <div class="gallery-item">
+                            <div class="image-wrapper">
+                                <img src="{{ url_for('static', filename=image) }}" 
+                                     alt="Generated Floor Plan"
+                                     onclick="openLightbox('{{ url_for('static', filename=image) }}')">
+                                <div class="image-overlay">
+                                    <div class="overlay-actions">
+                                        <button onclick="openLightbox('{{ url_for('static', filename=image) }}')" 
+                                                class="btn btn-secondary">
+                                            <i class="fas fa-search-plus"></i>
+                                        </button>
+                                        <a href="{{ url_for('download_result', filename=image) }}" 
+                                           class="btn btn-primary">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-gallery">
+                    <i class="fas fa-images"></i>
+                    <h3>No Floor Plans Yet</h3>
+                    <p>Generate your first professional floor plan to see it here!</p>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create Floor Plan
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <div class="lightbox-content">
+            <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+            <img id="lightbox-image" src="" alt="Floor Plan">
+            <div class="lightbox-controls">
+                <button onclick="zoomIn()" class="btn btn-secondary">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+                <button onclick="zoomOut()" class="btn btn-secondary">
+                    <i class="fas fa-search-minus"></i>
+                </button>
+                <button onclick="resetZoom()" class="btn btn-secondary">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Floorplan Genie - Professional CAD Analysis Engine</p>
+        </div>
+    </footer>
+
+    <style>
+        .gallery-section {
+            padding: 2rem 0;
+        }
+
+        .gallery-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .gallery-header h2 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 2.5rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .gallery-item {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .image-wrapper {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .image-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .gallery-item:hover .image-overlay {
+            opacity: 1;
+        }
+
+        .overlay-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .empty-gallery {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-gallery i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-gallery h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        /* Lightbox Styles */
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            cursor: pointer;
+        }
+
+        .lightbox-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            color: white;
+            font-size: 3rem;
+            cursor: pointer;
+            z-index: 10001;
+        }
+
+        .lightbox-close:hover {
+            opacity: 0.7;
+        }
+
+        #lightbox-image {
+            max-width: 90%;
+            max-height: 80%;
+            object-fit: contain;
+            transition: transform 0.3s;
+        }
+
+        .lightbox-controls {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .overlay-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+
+    <script>
+        let currentZoom = 1;
+        const zoomStep = 0.2;
+        const maxZoom = 3;
+        const minZoom = 0.5;
+
+        function openLightbox(imageSrc) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImage = document.getElementById('lightbox-image');
+            
+            lightboxImage.src = imageSrc;
+            lightbox.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // Reset zoom
+            currentZoom = 1;
+            updateImageZoom();
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function zoomIn() {
+            if (currentZoom < maxZoom) {
+                currentZoom += zoomStep;
+                updateImageZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (currentZoom > minZoom) {
+                currentZoom -= zoomStep;
+                updateImageZoom();
+            }
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            updateImageZoom();
+        }
+
+        function updateImageZoom() {
+            const image = document.getElementById('lightbox-image');
+            image.style.transform = `scale(${currentZoom})`;
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            const lightbox = document.getElementById('lightbox');
+            if (lightbox.style.display === 'block') {
+                if (e.key === 'Escape') {
+                    closeLightbox();
+                } else if (e.key === '+' || e.key === '=') {
+                    e.preventDefault();
+                    zoomIn();
+                } else if (e.key === '-') {
+                    e.preventDefault();
+                    zoomOut();
+                } else if (e.key === '0') {
+                    e.preventDefault();
+                    resetZoom();
+                }
+            }
+        });
+
+        // Prevent lightbox close when clicking on image
+        document.getElementById('lightbox-image').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
+        document.querySelector('.lightbox-controls').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    </script>
+</body>
+</html>
