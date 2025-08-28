@@ -60,7 +60,12 @@ def upload_file():
         if file_ext not in allowed_extensions:
             return jsonify({'success': False, 'error': f'Unsupported file type: {file_ext}'})
         
-        if file.size > 64 * 1024 * 1024:
+        # Check file size after saving
+        file.save(filepath)
+        file_size = os.path.getsize(filepath)
+        
+        if file_size > 64 * 1024 * 1024:
+            os.remove(filepath)
             return jsonify({'success': False, 'error': 'File size must be less than 64MB'})
         
         # Generate unique filename
@@ -68,14 +73,11 @@ def upload_file():
         filename = f"{file_id}{file_ext}"
         filepath = os.path.join(UPLOAD_FOLDER, filename)
         
-        # Save file
-        file.save(filepath)
-        
         result = {
             'success': True,
             'file_id': file_id,
             'filename': file.filename,
-            'size': os.path.getsize(filepath),
+            'size': file_size,
             'use_forge': use_forge
         }
         
@@ -92,7 +94,7 @@ def upload_file():
                         'urn': forge_result['urn'],
                         'enterprise_grade': True,
                         'metadata': forge_result.get('metadata', {}),
-                        'message': '✅ Enterprise-grade processing with Autodesk Forge API'
+                        'message': 'Processing with Autodesk Forge API'
                     }
                     
                     # Get thumbnail if available
@@ -106,7 +108,7 @@ def upload_file():
                 else:
                     result['forge_processing'] = {
                         'status': 'fallback',
-                        'message': '⚠️ Forge processing failed, using standard processing',
+                        'message': 'Forge processing failed, using standard processing',
                         'error': forge_result.get('error')
                     }
                     
@@ -114,7 +116,7 @@ def upload_file():
                 logger.warning(f"Forge processing error: {str(e)}")
                 result['forge_processing'] = {
                     'status': 'fallback',
-                    'message': '⚠️ Forge API unavailable, using standard processing',
+                    'message': 'Forge API unavailable, using standard processing',
                     'error': str(e)
                 }
         
@@ -219,9 +221,9 @@ def process_floorplan():
             output_path = os.path.join(OUTPUT_FOLDER, output_filename)
             
             # Enhanced rendering with Forge metadata
-            title = f"Professional Floor Plan - {datetime.now().strftime('%Y-%m-%d')}"
+            title = f"Floor Plan - {datetime.now().strftime('%Y-%m-%d')}"
             if use_forge and 'forge_data' in result:
-                title += " (Autodesk Forge Enhanced)"
+                title += " (Autodesk Forge)"
             
             renderer.render_production_floorplan(
                 result['geometry'],
@@ -263,13 +265,13 @@ def forge_status():
         return jsonify({
             'success': True,
             'status': 'connected',
-            'message': '✅ Autodesk Forge API is available',
+            'message': 'Autodesk Forge API is available',
             'enterprise_features': [
-                'Professional CAD parsing',
+                'CAD parsing',
                 'Multi-format support (DWG, DXF, RVT, etc.)',
-                'Enterprise-grade security',
+                'Security',
                 'Cloud-based processing',
-                'Advanced geometry extraction'
+                'Geometry extraction'
             ]
         })
         
@@ -277,7 +279,7 @@ def forge_status():
         return jsonify({
             'success': False,
             'status': 'unavailable',
-            'message': '❌ Autodesk Forge API unavailable',
+            'message': 'Autodesk Forge API unavailable',
             'error': str(e),
             'fallback': 'Standard processing available'
         })
@@ -314,7 +316,7 @@ def download_result(result_id):
         return send_file(
             result_path,
             as_attachment=True,
-            download_name=f"professional_floorplan_{result_id}.png",
+            download_name=f"floorplan_{result_id}.png",
             mimetype='image/png'
         )
         
@@ -406,5 +408,5 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_ENV') == 'development'
     
-    logger.info(f"🚀 Starting Enhanced Floorplan Genie with Autodesk Forge on port {port}")
+    logger.info(f"Starting Floorplan Genie with Autodesk Forge on port {port}")
     app.run(host='0.0.0.0', port=port, debug=debug)

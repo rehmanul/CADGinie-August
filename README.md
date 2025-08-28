@@ -1,48 +1,43 @@
-# 🏗️ Floorplan Genie - Enterprise CAD Analysis & Îlot Placement Engine
+# Floorplan Genie - CAD Analysis & Îlot Placement Engine
 
-**Production-grade floor plan analysis and rendering engine with Autodesk Forge integration, intelligent furniture placement, and corridor network generation.**
+Floor plan analysis and rendering engine with Autodesk Forge integration, furniture placement, and corridor network generation.
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+## Features
 
-🚀 **Live Demo**: [CAD Genie on Render](https://cadginie-august.onrender.com)  
-📦 **Repository**: [GitHub - CADGinie-August](https://github.com/rehmanul/CADGinie-August.git)
+### Autodesk Forge Integration
+- CAD processing with Autodesk Forge API
+- Client authentication
+- Multi-format support: DXF, DWG, RVT, IPT, PDF
+- Thumbnail generation and metadata extraction
+- Fallback processing
 
-## 🏗️ Enterprise Features
+### CAD File Processing
+- Dual-mode processing: Forge API + Standard processing
+- Layer-aware extraction with computer vision
+- Automatic scale detection and unit conversion
+- Element classification: Walls, doors, windows, restricted zones, entrances
+- Geometric validation and correction
 
-### 🔥 Autodesk Forge Integration
-- **Enterprise-grade CAD processing** with Autodesk Forge API
-- **Professional credentials**: Active client authentication
-- **Multi-format support**: DXF, DWG, RVT, IPT, PDF with cloud processing
-- **Thumbnail generation** and metadata extraction
-- **Fallback processing** for maximum reliability
-
-### Advanced CAD File Processing
-- **Dual-mode processing**: Forge API + Standard processing
-- **Layer-aware extraction** with computer vision
-- **Automatic scale detection** and unit conversion
-- **Element classification**: Walls, doors, windows, restricted zones, entrances
-- **Geometric validation** and correction
-
-### Intelligent Îlot Placement Engine
-- **Multiple algorithms**: Grid-based, random optimization, edge-following
-- **Coverage profiles**: 10%, 25%, 30%, 35% configurable coverage
-- **Accessibility compliance** checking
-- **Building code validation**
-- **Optimization for maximum usable space**
+### Îlot Placement Engine
+- Multiple algorithms: Grid-based, random optimization, edge-following
+- Coverage profiles: 10%, 25%, 30%, 35% configurable coverage
+- Accessibility compliance checking
+- Building code validation
+- Optimization for usable space
 
 ### Corridor Network Generation
-- **Graph-based planning** using minimum spanning tree algorithms
-- **Pathfinding optimization** for efficient circulation
-- **Configurable corridor widths** (default 1.2m)
-- **Automatic area calculation** and labeling
-- **Visual hierarchy maintenance**
+- Graph-based planning using minimum spanning tree algorithms
+- Pathfinding optimization for circulation
+- Configurable corridor widths (default 1.2m)
+- Automatic area calculation and labeling
+- Visual hierarchy maintenance
 
-### Professional Visualization
-- **Pixel-perfect rendering** with architectural line weights
-- **Color-coded elements** matching professional standards
-- **Interactive zoom, pan, and measurement tools**
-- **High-resolution output** (300 DPI)
-- **Scalable vector graphics support**
+### Visualization
+- Pixel-perfect rendering with architectural line weights
+- Color-coded elements matching standards
+- Interactive zoom, pan, and measurement tools
+- High-resolution output (300 DPI)
+- Scalable vector graphics support
 
 ## 🚀 Quick Start
 
@@ -71,29 +66,29 @@ python app.py
 4. **Access the web interface**
 Open your browser and navigate to: `http://localhost:5000`
 
-## 📁 Production Project Structure
+## Project Structure
 
 ```
 FLOORPLAN_GENIE/
-├── 🚀 Production Apps
+├── Applications
 │   ├── app.py                          # Main entry point
-│   ├── enhanced_production_app.py      # Enterprise app with Forge
-│   └── production_app.py               # Standard production app
-├── 📦 Core Engine (src/)
+│   ├── enhanced_production_app.py      # App with Forge
+│   └── production_app.py               # Standard app
+├── Core Engine (src/)
 │   ├── processors/
 │   │   ├── advanced_cad_processor.py       # Multi-format CAD processing
-│   │   └── autodesk_forge_processor.py     # Enterprise Forge integration
+│   │   └── autodesk_forge_processor.py     # Forge integration
 │   ├── optimizers/
-│   │   └── intelligent_layout_optimizer.py # AI-powered placement
+│   │   └── intelligent_layout_optimizer.py # Layout placement
 │   ├── renderers/
-│   │   └── pixel_perfect_renderer.py       # Professional visualization
+│   │   └── pixel_perfect_renderer.py       # Visualization
 │   └── engines/
-│       ├── production_engine.py            # Main processing pipeline
+│       ├── production_engine.py            # Processing pipeline
 │       └── enhanced_production_engine.py   # Forge-enhanced pipeline
-├── 🌐 Web Interface
+├── Web Interface
 │   ├── templates/enhanced_production_index.html
 │   └── static/ (CSS, JS, assets)
-├── 📧 Deployment
+├── Deployment
 │   ├── Dockerfile                      # Container configuration
 │   ├── render.yaml                     # Render.com deployment
 │   ├── enhanced_requirements.txt       # Production dependencies
