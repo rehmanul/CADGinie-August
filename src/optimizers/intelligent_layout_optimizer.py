@@ -54,7 +54,12 @@ class IntelligentLayoutOptimizer:
             optimization_space = self._prepare_optimization_space(geometry)
             
             if not optimization_space or optimization_space.area < 1:
-                return {'success': False, 'error': 'No usable space available for placement'}
+                logger.warning(f"Optimization space area: {optimization_space.area if optimization_space else 'None'}")
+                # Try with minimal space requirement
+                if optimization_space and optimization_space.area > 0:
+                    logger.info("Attempting placement with available space")
+                else:
+                    return {'success': False, 'error': 'No usable space available for placement'}
             
             # Run multiple optimization algorithms
             optimization_results = []
