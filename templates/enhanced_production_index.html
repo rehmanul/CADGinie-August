@@ -245,7 +245,7 @@
                     <span id="enterpriseProcessingBadge" class="ml-3 hidden">
                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                             <i class="fas fa-rocket mr-1"></i>
-                            Autodesk Forge Processing
+                            Advanced Processing
                         </span>
                     </span>
                 </h3>
@@ -391,7 +391,7 @@
             banner.classList.remove('hidden', 'bg-green-600');
             banner.classList.add('bg-yellow-600');
             document.getElementById('forgeStatusText').textContent = 
-                '⚠️ Autodesk Forge API unavailable - Using standard processing';
+                '⚠️ Advanced processing unavailable - Using standard processing';
         }
 
         function handleForgeToggle() {
@@ -429,7 +429,7 @@
 
             // Update step texts for enterprise processing
             if (useForge) {
-                document.getElementById('step1Text').textContent = 'Enterprise CAD processing with Autodesk Forge...';
+                document.getElementById('step1Text').textContent = 'Advanced CAD processing...';
                 document.getElementById('step2Text').textContent = 'Enhanced intelligent îlot placement...';
                 document.getElementById('step3Text').textContent = 'Professional corridor network generation...';
                 document.getElementById('step4Text').textContent = 'Enterprise-grade rendering...';
@@ -683,7 +683,7 @@
         function showEnterpriseFeatures(result) {
             const featuresDiv = document.getElementById('enterpriseFeaturesList');
             const features = [
-                '✓ Autodesk Forge API Processing',
+                '✓ Advanced API Processing',
                 '✓ Enterprise-Grade Security',
                 '✓ Professional CAD Parsing',
                 '✓ Cloud-Based Processing',
