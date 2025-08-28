@@ -23,7 +23,7 @@ class AutodeskForgeProcessor:
         self.token_expires = 0
         
         # Forge API endpoints
-        self.auth_url = f"{self.base_url}/authentication/v1/authenticate"
+        self.auth_url = f"{self.base_url}/authentication/v2/token"
         self.bucket_url = f"{self.base_url}/oss/v2/buckets"
         self.model_derivative_url = f"{self.base_url}/modelderivative/v2"
         
