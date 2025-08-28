@@ -53,8 +53,8 @@ class IntelligentLayoutOptimizer:
             # Prepare optimization space
             optimization_space = self._prepare_optimization_space(geometry)
             
-            if not optimization_space or optimization_space.area < 10:
-                return {'success': False, 'error': 'Insufficient usable space for îlot placement'}
+            if not optimization_space or optimization_space.area < 1:
+                return {'success': False, 'error': 'No usable space available for placement'}
             
             # Run multiple optimization algorithms
             optimization_results = []

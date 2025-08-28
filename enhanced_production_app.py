@@ -84,7 +84,7 @@ def upload_file():
         # If Forge is enabled, process with Autodesk API
         if use_forge:
             try:
-                logger.info(f"🏗️ Processing {file.filename} with Autodesk Forge API...")
+                logger.info(f"🏗️ Processing {file.filename} with advanced engine...")
                 
                 forge_result = forge_processor.process_cad_file_enterprise(filepath, file.filename)
                 
@@ -94,7 +94,7 @@ def upload_file():
                         'urn': forge_result['urn'],
                         'enterprise_grade': True,
                         'metadata': forge_result.get('metadata', {}),
-                        'message': 'Processing with Autodesk Forge API'
+                        'message': 'Processing with advanced engine'
                     }
                     
                     # Get thumbnail if available
@@ -116,7 +116,7 @@ def upload_file():
                 logger.warning(f"Forge processing error: {str(e)}")
                 result['forge_processing'] = {
                     'status': 'fallback',
-                    'message': 'Forge API unavailable, using standard processing',
+                    'message': 'Advanced processing unavailable, using standard processing',
                     'error': str(e)
                 }
         
@@ -223,7 +223,7 @@ def process_floorplan():
             # Enhanced rendering with Forge metadata
             title = f"Floor Plan - {datetime.now().strftime('%Y-%m-%d')}"
             if use_forge and 'forge_data' in result:
-                title += " (Autodesk Forge)"
+                title += " (Advanced)"
             
             renderer.render_production_floorplan(
                 result['geometry'],
@@ -242,7 +242,7 @@ def process_floorplan():
                 'statistics': result['statistics'],
                 'processing_time': result['processing_time'],
                 'enterprise_grade': use_forge,
-                'processing_method': 'Autodesk Forge API' if use_forge else 'Standard Processing'
+                'processing_method': 'Advanced Processing' if use_forge else 'Standard Processing'
             }
             
             if 'quality_assurance' in result:
@@ -265,7 +265,7 @@ def forge_status():
         return jsonify({
             'success': True,
             'status': 'connected',
-            'message': 'Autodesk Forge API is available',
+            'message': 'Advanced processing is available',
             'enterprise_features': [
                 'CAD parsing',
                 'Multi-format support (DWG, DXF, RVT, etc.)',
@@ -279,7 +279,7 @@ def forge_status():
         return jsonify({
             'success': False,
             'status': 'unavailable',
-            'message': 'Autodesk Forge API unavailable',
+            'message': 'Advanced processing unavailable',
             'error': str(e),
             'fallback': 'Standard processing available'
         })
@@ -367,7 +367,7 @@ def get_capabilities():
         'coverage_profiles': ['10%', '25%', '30%', '35%'],
         'corridor_widths': {'min': 0.8, 'max': 3.0, 'default': 1.2},
         'output_formats': ['PNG', 'SVG', 'PDF'],
-        'processing_engines': ['Standard', 'Autodesk Forge API'],
+        'processing_engines': ['Standard', 'Advanced Processing'],
         'enterprise_grade': forge_available,
         'features': [
             'Multi-sheet CAD processing',
@@ -382,9 +382,9 @@ def get_capabilities():
     
     if forge_available:
         capabilities['enterprise_features'] = [
-            'Autodesk Forge API integration',
+            'Advanced API integration',
             'Professional CAD parsing',
-            'Enterprise-grade security',
+            'Enhanced security',
             'Cloud-based processing',
             'Advanced geometry extraction',
             'Multi-format support (RVT, IPT, etc.)',
@@ -408,5 +408,5 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_ENV') == 'development'
     
-    logger.info(f"Starting Floorplan Genie with Autodesk Forge on port {port}")
+    logger.info(f"Starting Floorplan Genie on port {port}")
     app.run(host='0.0.0.0', port=port, debug=debug)
