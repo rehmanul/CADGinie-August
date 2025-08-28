@@ -12,6 +12,8 @@ from src.processors.advanced_cad_processor import AdvancedCADProcessor
 from src.optimizers.intelligent_layout_optimizer import IntelligentLayoutOptimizer
 from src.renderers.pixel_perfect_renderer import PixelPerfectRenderer
 from src.processors.autodesk_forge_processor import forge_processor
+from src.processors.zoo_api_processor import zoo_processor
+from src.processors.onshape_api_processor import onshape_processor
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -81,12 +83,29 @@ def upload_file():
             'use_forge': use_forge
         }
         
-        # If Forge is enabled, process with Autodesk API
+        # If advanced processing is enabled, try multiple APIs
         if use_forge:
             try:
                 logger.info(f"🏗️ Processing {file.filename} with advanced engine...")
                 
-                forge_result = forge_processor.process_cad_file_enterprise(filepath, file.filename)
+                # Try Zoo API first
+                try:
+                    zoo_result = zoo_processor.process_cad_file(filepath, file.filename)
+                    if zoo_result['success']:
+                        forge_result = zoo_result
+                    else:
+                        raise Exception("Zoo API failed")
+                except:
+                    # Fallback to Onshape API
+                    try:
+                        onshape_result = onshape_processor.process_cad_file(filepath, file.filename)
+                        if onshape_result['success']:
+                            forge_result = onshape_result
+                        else:
+                            raise Exception("Onshape API failed")
+                    except:
+                        # Final fallback to Forge
+                        forge_result = forge_processor.process_cad_file_enterprise(filepath, file.filename)
                 
                 if forge_result['success']:
                     result['forge_processing'] = {
@@ -108,7 +127,7 @@ def upload_file():
                 else:
                     result['forge_processing'] = {
                         'status': 'fallback',
-                        'message': 'Forge processing failed, using standard processing',
+                        'message': 'Advanced processing failed, using standard processing',
                         'error': forge_result.get('error')
                     }
                     
@@ -242,7 +261,8 @@ def process_floorplan():
                 'statistics': result['statistics'],
                 'processing_time': result['processing_time'],
                 'enterprise_grade': use_forge,
-                'processing_method': 'Advanced Processing' if use_forge else 'Standard Processing'
+                'processing_method': 'Advanced Processing' if use_forge else 'Standard Processing',
+                'forge_status': 'fallback' if use_forge else 'standard'
             }
             
             if 'quality_assurance' in result:
