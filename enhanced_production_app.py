@@ -275,8 +275,8 @@ def get_result(result_id):
         
         return jsonify({
             'success': True,
-            'image_url': url_for('static', filename=f'../output_files/floorplan_{result_id}.png'),
-            'interactive_url': url_for('interactive_viewer', result_id=result_id),
+            'image_url': f'/output_files/floorplan_{result_id}.png',
+            'interactive_url': f'/viewer/{result_id}',
             'created': datetime.fromtimestamp(os.path.getctime(result_path)).isoformat(),
             'size': os.path.getsize(result_path)
         })
@@ -289,6 +289,11 @@ def get_result(result_id):
 def interactive_viewer(result_id):
     """Interactive floor plan viewer"""
     return render_template('interactive_viewer.html', result_id=result_id)
+
+@app.route('/output_files/<filename>')
+def serve_output_file(filename):
+    """Serve generated floor plan images"""
+    return send_file(os.path.join(OUTPUT_FOLDER, filename), mimetype='image/png')
 
 @app.route('/api/update-layout', methods=['POST'])
 def update_layout():
