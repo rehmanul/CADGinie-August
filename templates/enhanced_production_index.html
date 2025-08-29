@@ -41,6 +41,12 @@
         .enterprise-toggle {
             background: linear-gradient(45deg, #ff6b35, #f7931e);
         }
+        .toggle-switch.active {
+            background-color: #10b981 !important;
+        }
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(20px) !important;
+        }
     </style>
 </head>
 <body class="min-h-screen enterprise-gradient">
@@ -102,7 +108,9 @@
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="forgeToggle" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all duration-200 peer-checked:bg-green-500"></div>
+                            <div class="toggle-switch relative w-11 h-6 bg-gray-300 rounded-full transition-colors duration-200">
+                                <div class="toggle-slider absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full transition-transform duration-200"></div>
+                            </div>
                             <span class="ml-3 text-sm font-medium text-gray-700">Enable Advanced Processing</span>
                         </label>
                     </div>
@@ -396,6 +404,15 @@
 
         function handleForgeToggle() {
             useForge = forgeToggle.checked && forgeAvailable;
+            
+            // Update toggle visual state
+            const toggleSwitch = document.querySelector('.toggle-switch');
+            if (forgeToggle.checked) {
+                toggleSwitch.classList.add('active');
+            } else {
+                toggleSwitch.classList.remove('active');
+            }
+            
             updateUIForForgeMode();
         }
 
