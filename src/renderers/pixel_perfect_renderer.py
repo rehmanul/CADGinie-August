@@ -797,6 +797,4 @@ class PixelPerfectRenderer:
                    pad_inches=0.1,
                    facecolor=self.colors['background'],
                    edgecolor='none',
-                   format='png',
-                   quality=95,
-                   optimize=True)
+                   format='png')
