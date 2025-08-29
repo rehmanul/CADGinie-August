@@ -88,8 +88,24 @@ def upload_file():
             try:
                 logger.info(f"🏗️ Processing {file.filename} with advanced engine...")
                 
-                # Skip APIs for now - use standard processing
-                forge_result = {'success': False, 'error': 'Using standard processing'}
+                # Try Zoo API first
+                try:
+                    zoo_result = zoo_processor.process_cad_file(filepath, file.filename)
+                    if zoo_result['success']:
+                        forge_result = zoo_result
+                    else:
+                        raise Exception("Zoo API failed")
+                except:
+                    # Fallback to Onshape API
+                    try:
+                        onshape_result = onshape_processor.process_cad_file(filepath, file.filename)
+                        if onshape_result['success']:
+                            forge_result = onshape_result
+                        else:
+                            raise Exception("Onshape API failed")
+                    except:
+                        # Final fallback to Forge
+                        forge_result = forge_processor.process_cad_file_enterprise(filepath, file.filename)
                 
                 if forge_result['success']:
                     result['forge_processing'] = {

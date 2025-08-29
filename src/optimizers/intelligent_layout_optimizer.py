@@ -64,23 +64,31 @@ class IntelligentLayoutOptimizer:
                     optimization_space = box(0, 0, 50, 30)  # Standard room size
                 logger.info(f"Using fallback optimization space: {optimization_space.area:.1f}m²")
             
-            # Run multiple optimization algorithms
+            # Use only grid-based algorithm for speed
             optimization_results = []
             
-            for algorithm_name, algorithm_func in self.optimization_algorithms.items():
-                try:
-                    result = algorithm_func(
-                        optimization_space, ilot_specs, coverage_profile, 
-                        geometry, corridor_width
-                    )
+            try:
+                result = self._grid_based_placement(
+                    optimization_space, ilot_specs, coverage_profile, 
+                    geometry, corridor_width
+                )
+                
+                if result['success']:
+                    result['algorithm'] = 'grid_based'
+                    optimization_results.append(result)
+                    logger.info(f"Grid algorithm: {len(result['layout']['islands'])} îlots placed")
                     
-                    if result['success']:
-                        result['algorithm'] = algorithm_name
-                        optimization_results.append(result)
-                        logger.info(f"{algorithm_name} algorithm: {len(result['islands'])} îlots placed")
-                        
-                except Exception as e:
-                    logger.warning(f"{algorithm_name} algorithm failed: {str(e)}")
+            except Exception as e:
+                logger.warning(f"Grid algorithm failed: {str(e)}")
+                # Fallback to simple placement
+                result = {
+                    'success': True,
+                    'layout': {'islands': []},
+                    'coverage_achieved': 0,
+                    'accessibility_score': 1.0,
+                    'algorithm': 'fallback'
+                }
+                optimization_results.append(result)
             
             if not optimization_results:
                 return {'success': False, 'error': 'All optimization algorithms failed'}

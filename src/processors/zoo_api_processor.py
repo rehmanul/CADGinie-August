@@ -16,8 +16,8 @@ class ZooAPIProcessor:
     
     def __init__(self):
         # Zoo API credentials from your account
-        self.api_key = os.environ.get('ZOO_API_KEY', 'zoo_dev_key_placeholder')
-        self.base_url = "https://api.zoo.dev/file"
+        self.api_key = os.environ.get('ZOO_API_KEY', 'api-fa56d816-b19b-447c-9d48-300bac31f041')
+        self.base_url = "https://api.zoo.dev"
         self.session = requests.Session()
         self.session.headers.update({
             'Authorization': f'Bearer {self.api_key}',
@@ -61,7 +61,7 @@ class ZooAPIProcessor:
         """Upload file to Zoo API"""
         
         try:
-            upload_url = f"{self.base_url}/conversion"
+            upload_url = f"{self.base_url}/file/conversion"
             
             with open(file_path, 'rb') as f:
                 files = {'file': (file_name, f, self._get_mime_type(file_name))}
@@ -104,7 +104,7 @@ class ZooAPIProcessor:
         """Wait for conversion to complete"""
         
         start_time = time.time()
-        status_url = f"{self.base_url}/conversion/{conversion_id}"
+        status_url = f"{self.base_url}/file/conversion/{conversion_id}"
         
         while time.time() - start_time < max_wait:
             try:
