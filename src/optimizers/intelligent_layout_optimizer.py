@@ -64,6 +64,16 @@ class IntelligentLayoutOptimizer:
                     optimization_space = box(0, 0, 50, 30)  # Standard room size
                 logger.info(f"Using fallback optimization space: {optimization_space.area:.1f}m²")
             
+            # Limit maximum space to prevent infinite processing
+            if optimization_space.area > 10000:  # 10,000 m² max
+                logger.warning(f"Space too large ({optimization_space.area:.0f}m²), scaling down")
+                bounds = optimization_space.bounds
+                scale_factor = (10000 / optimization_space.area) ** 0.5
+                new_width = (bounds[2] - bounds[0]) * scale_factor
+                new_height = (bounds[3] - bounds[1]) * scale_factor
+                optimization_space = box(0, 0, new_width, new_height)
+                logger.info(f"Scaled to: {optimization_space.area:.1f}m²")
+            
             # Use only grid-based algorithm for speed
             optimization_results = []
             
