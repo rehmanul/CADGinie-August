@@ -4,7 +4,7 @@ import requests
 import json
 import time
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List, Tuple
 import os
 from shapely.geometry import Polygon, LineString, Point
 from shapely.ops import unary_union
