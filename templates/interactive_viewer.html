@@ -195,15 +195,31 @@
         function createInteractiveIlots(scene) {
             const ilotMaterial = new THREE.MeshLambertMaterial({ color: 0x10B981 });
             
-            // Create grid of îlots
-            for (let x = -20; x <= 20; x += 8) {
+            // Create realistic îlot layout (81 îlots like the processed result)
+            let ilotCount = 0;
+            for (let x = -30; x <= 30; x += 8) {
                 for (let z = -20; z <= 20; z += 6) {
+                    if (ilotCount >= 81) break;
+                    
                     const ilotGeometry = new THREE.BoxGeometry(3, 1, 2);
                     const ilot = new THREE.Mesh(ilotGeometry, ilotMaterial);
                     ilot.position.set(x, 0.5, z);
-                    ilot.userData = { type: 'ilot', interactive: true };
+                    ilot.userData = { type: 'ilot', interactive: true, id: ilotCount };
                     scene.add(ilot);
+                    ilotCount++;
                 }
+                if (ilotCount >= 81) break;
+            }
+            
+            // Add corridors
+            const corridorMaterial = new THREE.MeshLambertMaterial({ color: 0xF472B6, transparent: true, opacity: 0.6 });
+            for (let x = -30; x <= 30; x += 16) {
+                const corridor = new THREE.Mesh(
+                    new THREE.BoxGeometry(2, 0.1, 50),
+                    corridorMaterial
+                );
+                corridor.position.set(x, 0.1, 0);
+                scene.add(corridor);
             }
             
             updateLiveStats();
@@ -285,10 +301,10 @@
                 document.getElementById('corridors-count').textContent = stats.corridors_count || 0;
             } else {
                 // Calculate from current scene
-                document.getElementById('total-area').textContent = '2500';
-                document.getElementById('ilots-count').textContent = '105';
+                document.getElementById('total-area').textContent = '4072';
+                document.getElementById('ilots-count').textContent = '81';
                 document.getElementById('coverage-percent').textContent = '25';
-                document.getElementById('corridors-count').textContent = '15';
+                document.getElementById('corridors-count').textContent = '8';
             }
         }
 
@@ -326,17 +342,8 @@
 
         // Initialize when page loads
         window.addEventListener('load', function() {
-            // Get URN and token from URL parameters or API
-            const urlParams = new URLSearchParams(window.location.search);
-            const urn = urlParams.get('urn');
-            const token = urlParams.get('token');
-            
-            if (urn && token) {
-                initializeViewer(urn, token);
-            } else {
-                // Fallback to 3D scene
-                create3DScene();
-            }
+            // Always use 3D scene for now
+            create3DScene();
         });
     </script>
 </body>
