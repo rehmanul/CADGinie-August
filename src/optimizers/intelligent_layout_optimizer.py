@@ -56,7 +56,6 @@ class IntelligentLayoutOptimizer:
             if not optimization_space or optimization_space.area < 0.1:
                 logger.warning(f"Optimization space area: {optimization_space.area if optimization_space else 'None'}")
                 # Create working space from file bounds
-                from shapely.geometry import box
                 if 'walls' in geometry and geometry['walls']:
                     bounds = geometry['walls'].bounds
                     optimization_space = box(bounds[0], bounds[1], bounds[2], bounds[3])
