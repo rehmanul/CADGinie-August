@@ -206,7 +206,9 @@ def process_floorplan():
             response_data = {
                 'success': True,
                 'result_id': output_id,
-                'result_url': url_for('get_result', result_id=output_id),
+                'result_url': f'/output_files/floorplan_{output_id}.png',
+                'image_url': f'/output_files/floorplan_{output_id}.png',
+                'interactive_url': f'/viewer/{output_id}',
                 'download_url': url_for('download_result', result_id=output_id),
                 'statistics': result['statistics'],
                 'processing_time': result['processing_time'],

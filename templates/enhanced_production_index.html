@@ -660,7 +660,7 @@
                 resultsSection.classList.remove('hidden');
                 
                 // Show result image
-                document.getElementById('resultImage').src = result.result_url;
+                document.getElementById('resultImage').src = result.image_url;
                 
                 // Show statistics
                 showStatistics(result.statistics);
@@ -679,9 +679,11 @@
                 };
                 
                 // Setup interactive viewer
-                document.getElementById('interactiveBtn').onclick = () => {
-                    window.open(result.interactive_url, '_blank');
-                };
+                if (document.getElementById('interactiveBtn')) {
+                    document.getElementById('interactiveBtn').onclick = () => {
+                        window.open(result.interactive_url, '_blank');
+                    };
+                }
                 
                 if (processingInterval) {
                     clearInterval(processingInterval);
