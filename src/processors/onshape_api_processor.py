@@ -7,6 +7,7 @@ import hashlib
 import base64
 import time
 import logging
+import os
 from typing import Dict, Any, Optional
 from urllib.parse import urlparse, parse_qs
 from shapely.geometry import Polygon, LineString, Point
@@ -18,8 +19,8 @@ class OnshapeAPIProcessor:
     """Onshape API CAD processor"""
     
     def __init__(self):
-        self.access_key = "on_PyORcNYDukpBv5Kv15kXT"
-        self.secret_key = "Pc1g9Hrf4QvbfKVOPBGoYADh2zh1t6CPaTL4UUy20rTFh6Xj"
+        self.access_key = os.environ.get('ONSHAPE_ACCESS_KEY', 'on_PyORcNYDukpBv5Kv15kXT')
+        self.secret_key = os.environ.get('ONSHAPE_SECRET_KEY', 'Pc1g9Hrf4QvbfKVOPBGoYADh2zh1t6CPaTL4UUy20rTFh6Xj')
         self.base_url = "https://cad.onshape.com"
         
     def process_cad_file(self, file_path: str, file_name: str) -> Dict[str, Any]:
