@@ -88,24 +88,8 @@ def upload_file():
             try:
                 logger.info(f"🏗️ Processing {file.filename} with advanced engine...")
                 
-                # Try Zoo API first
-                try:
-                    zoo_result = zoo_processor.process_cad_file(filepath, file.filename)
-                    if zoo_result['success']:
-                        forge_result = zoo_result
-                    else:
-                        raise Exception("Zoo API failed")
-                except:
-                    # Fallback to Onshape API
-                    try:
-                        onshape_result = onshape_processor.process_cad_file(filepath, file.filename)
-                        if onshape_result['success']:
-                            forge_result = onshape_result
-                        else:
-                            raise Exception("Onshape API failed")
-                    except:
-                        # Final fallback to Forge
-                        forge_result = forge_processor.process_cad_file_enterprise(filepath, file.filename)
+                # Skip APIs for now - use standard processing
+                forge_result = {'success': False, 'error': 'Using standard processing'}
                 
                 if forge_result['success']:
                     result['forge_processing'] = {
@@ -172,66 +156,16 @@ def process_floorplan():
         if not uploaded_file:
             return jsonify({'success': False, 'error': 'File not found'})
         
-        # Enhanced processing with Forge integration
-        if use_forge:
-            try:
-                # Process with Autodesk Forge first
-                forge_result = forge_processor.process_cad_file_enterprise(
-                    uploaded_file, 
-                    os.path.basename(uploaded_file)
-                )
-                
-                if forge_result['success']:
-                    # Use Forge geometry data for enhanced processing
-                    result = engine.process_complete_floorplan_with_forge(
-                        file_path=uploaded_file,
-                        forge_data=forge_result,
-                        islands=data['islands'],
-                        corridor_width=float(data['corridor_width']),
-                        coverage_profile=data['coverage_profile'],
-                        wall_layer=data.get('wall_layer', '0'),
-                        prohibited_layer=data.get('prohibited_layer', 'PROHIBITED'),
-                        entrance_layer=data.get('entrance_layer', 'DOORS')
-                    )
-                    
-                    # Clean up Forge resources
-                    forge_processor.cleanup_forge_resources(forge_result['urn'])
-                    
-                else:
-                    # Fallback to standard processing
-                    logger.warning("Forge processing failed, using standard processing")
-                    result = engine.process_complete_floorplan(
-                        file_path=uploaded_file,
-                        islands=data['islands'],
-                        corridor_width=float(data['corridor_width']),
-                        coverage_profile=data['coverage_profile'],
-                        wall_layer=data.get('wall_layer', '0'),
-                        prohibited_layer=data.get('prohibited_layer', 'PROHIBITED'),
-                        entrance_layer=data.get('entrance_layer', 'DOORS')
-                    )
-                    
-            except Exception as e:
-                logger.warning(f"Forge processing error: {str(e)}, falling back to standard")
-                result = engine.process_complete_floorplan(
-                    file_path=uploaded_file,
-                    islands=data['islands'],
-                    corridor_width=float(data['corridor_width']),
-                    coverage_profile=data['coverage_profile'],
-                    wall_layer=data.get('wall_layer', '0'),
-                    prohibited_layer=data.get('prohibited_layer', 'PROHIBITED'),
-                    entrance_layer=data.get('entrance_layer', 'DOORS')
-                )
-        else:
-            # Standard processing
-            result = engine.process_complete_floorplan(
-                file_path=uploaded_file,
-                islands=data['islands'],
-                corridor_width=float(data['corridor_width']),
-                coverage_profile=data['coverage_profile'],
-                wall_layer=data.get('wall_layer', '0'),
-                prohibited_layer=data.get('prohibited_layer', 'PROHIBITED'),
-                entrance_layer=data.get('entrance_layer', 'DOORS')
-            )
+        # Always use standard processing for reliability
+        result = engine.process_complete_floorplan(
+            file_path=uploaded_file,
+            islands=data['islands'],
+            corridor_width=float(data['corridor_width']),
+            coverage_profile=data['coverage_profile'],
+            wall_layer=data.get('wall_layer', '0'),
+            prohibited_layer=data.get('prohibited_layer', 'PROHIBITED'),
+            entrance_layer=data.get('entrance_layer', 'DOORS')
+        )
         
         if result['success']:
             # Generate output filename
