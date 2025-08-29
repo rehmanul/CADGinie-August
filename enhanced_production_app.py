@@ -270,11 +270,21 @@ def process_floorplan():
             
             return jsonify(response_data)
         else:
-            return jsonify({'success': False, 'error': result['error']})
+            return jsonify({
+                'success': False, 
+                'error': result['error'],
+                'statistics': {'total_area': 0, 'islands_placed': 0, 'coverage_percentage': 0, 'efficiency_score': 0},
+                'processing_time': 0
+            })
             
     except Exception as e:
         logger.error(f"Processing error: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({
+            'success': False, 
+            'error': str(e),
+            'statistics': {'total_area': 0, 'islands_placed': 0, 'coverage_percentage': 0, 'efficiency_score': 0},
+            'processing_time': 0
+        })
 
 @app.route('/api/forge/status')
 def forge_status():
