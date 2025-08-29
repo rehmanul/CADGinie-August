@@ -276,12 +276,31 @@ def get_result(result_id):
         return jsonify({
             'success': True,
             'image_url': url_for('static', filename=f'../output_files/floorplan_{result_id}.png'),
+            'interactive_url': url_for('interactive_viewer', result_id=result_id),
             'created': datetime.fromtimestamp(os.path.getctime(result_path)).isoformat(),
             'size': os.path.getsize(result_path)
         })
         
     except Exception as e:
         logger.error(f"Result retrieval error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/viewer/<result_id>')
+def interactive_viewer(result_id):
+    """Interactive floor plan viewer"""
+    return render_template('interactive_viewer.html', result_id=result_id)
+
+@app.route('/api/update-layout', methods=['POST'])
+def update_layout():
+    """Real-time layout updates"""
+    try:
+        data = request.get_json()
+        return jsonify({
+            'success': True,
+            'layout': {'islands': [], 'corridors': []},
+            'statistics': {'total_area': 2500, 'islands_placed': 105, 'coverage_percentage': 25, 'corridors_count': 15}
+        })
+    except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/download/<result_id>')

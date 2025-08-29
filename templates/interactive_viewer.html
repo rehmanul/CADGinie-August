@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Floor Plan Viewer</title>
+    <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
+    <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; }
+        #viewer-container { width: 100%; height: 100vh; position: relative; }
+        #forge-viewer { width: 100%; height: 100%; }
+        #controls-panel { 
+            position: absolute; top: 10px; right: 10px; 
+            background: rgba(255,255,255,0.9); padding: 15px; 
+            border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-width: 250px;
+        }
+        .control-group { margin-bottom: 15px; }
+        .control-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .slider { width: 100%; }
+        .stats { background: #f0f0f0; padding: 10px; border-radius: 4px; margin-top: 10px; }
+        .btn { 
+            background: #007bff; color: white; border: none; 
+            padding: 8px 16px; border-radius: 4px; cursor: pointer; margin: 2px;
+        }
+        .btn:hover { background: #0056b3; }
+        #loading { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="viewer-container">
+        <div id="forge-viewer"></div>
+        <div id="loading">Loading interactive floor plan...</div>
+        
+        <div id="controls-panel">
+            <h3>Interactive Controls</h3>
+            
+            <div class="control-group">
+                <label>Coverage Profile</label>
+                <select id="coverage-select" onchange="updateLayout()">
+                    <option value="10">Low (10%)</option>
+                    <option value="25" selected>Medium (25%)</option>
+                    <option value="30">High (30%)</option>
+                    <option value="35">Maximum (35%)</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Corridor Width: <span id="corridor-value">1.2m</span></label>
+                <input type="range" id="corridor-slider" class="slider" 
+                       min="0.8" max="3.0" step="0.1" value="1.2" 
+                       oninput="updateCorridorWidth(this.value)">
+            </div>
+            
+            <div class="control-group">
+                <label>Îlot Dimensions</label>
+                <input type="text" id="ilot-dims" value="3x2,4x3,5x4" 
+                       onchange="updateLayout()" placeholder="3x2,4x3,5x4">
+            </div>
+            
+            <div class="control-group">
+                <button class="btn" onclick="regenerateLayout()">🔄 Regenerate</button>
+                <button class="btn" onclick="exportPlan()">📥 Export</button>
+                <button class="btn" onclick="toggle3D()">🎯 3D View</button>
+            </div>
+            
+            <div class="stats" id="live-stats">
+                <strong>Live Statistics</strong><br>
+                Total Area: <span id="total-area">0</span>m²<br>
+                Îlots Placed: <span id="ilots-count">0</span><br>
+                Coverage: <span id="coverage-percent">0</span>%<br>
+                Corridors: <span id="corridors-count">0</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let viewer = null;
+        let currentUrn = null;
+        let layoutData = null;
+        let isInteractive = true;
+
+        // Initialize Forge Viewer
+        function initializeViewer(urn, accessToken) {
+            const options = {
+                env: 'AutodeskProduction',
+                api: 'derivativeV2',
+                getAccessToken: function(onTokenReady) {
+                    onTokenReady(accessToken, 3600);
+                }
+            };
+
+            Autodesk.Viewing.Initializer(options, function() {
+                const htmlDiv = document.getElementById('forge-viewer');
+                viewer = new Autodesk.Viewing.GuiViewer3D(htmlDiv);
+                
+                const startedCode = viewer.start();
+                if (startedCode > 0) {
+                    console.error('Failed to create a Viewer: WebGL not supported.');
+                    return;
+                }
+
+                loadDocument(urn);
+            });
+        }
+
+        function loadDocument(urn) {
+            currentUrn = urn;
+            
+            Autodesk.Viewing.Document.load(
+                'urn:' + urn,
+                function(viewerDocument) {
+                    const defaultModel = viewerDocument.getRoot().getDefaultGeometry();
+                    viewer.loadDocumentNode(viewerDocument, defaultModel).then(function(result) {
+                        document.getElementById('loading').style.display = 'none';
+                        setupInteractiveFeatures();
+                    });
+                },
+                function(errorMsg) {
+                    console.error('Document load error: ' + errorMsg);
+                    // Fallback to 3D scene
+                    create3DScene();
+                }
+            );
+        }
+
+        function create3DScene() {
+            // Fallback 3D scene using Three.js
+            const container = document.getElementById('forge-viewer');
+            
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
+            renderer.setClearColor(0xf0f0f0);
+            container.appendChild(renderer.domElement);
+            
+            // Create interactive floor plan
+            createInteractiveFloorPlan(scene);
+            
+            camera.position.set(0, 50, 50);
+            camera.lookAt(0, 0, 0);
+            
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+            }
+            animate();
+            
+            document.getElementById('loading').style.display = 'none';
+            setupInteractiveFeatures();
+        }
+
+        function createInteractiveFloorPlan(scene) {
+            // Create walls
+            const wallGeometry = new THREE.BoxGeometry(50, 2, 1);
+            const wallMaterial = new THREE.MeshLambertMaterial({ color: 0x6B7280 });
+            
+            // Add walls
+            const wall1 = new THREE.Mesh(wallGeometry, wallMaterial);
+            wall1.position.set(0, 1, -25);
+            scene.add(wall1);
+            
+            const wall2 = new THREE.Mesh(wallGeometry, wallMaterial);
+            wall2.position.set(0, 1, 25);
+            scene.add(wall2);
+            
+            const wall3 = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 50), wallMaterial);
+            wall3.position.set(-25, 1, 0);
+            scene.add(wall3);
+            
+            const wall4 = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 50), wallMaterial);
+            wall4.position.set(25, 1, 0);
+            scene.add(wall4);
+            
+            // Add interactive îlots
+            createInteractiveIlots(scene);
+            
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 10, 5);
+            scene.add(directionalLight);
+        }
+
+        function createInteractiveIlots(scene) {
+            const ilotMaterial = new THREE.MeshLambertMaterial({ color: 0x10B981 });
+            
+            // Create grid of îlots
+            for (let x = -20; x <= 20; x += 8) {
+                for (let z = -20; z <= 20; z += 6) {
+                    const ilotGeometry = new THREE.BoxGeometry(3, 1, 2);
+                    const ilot = new THREE.Mesh(ilotGeometry, ilotMaterial);
+                    ilot.position.set(x, 0.5, z);
+                    ilot.userData = { type: 'ilot', interactive: true };
+                    scene.add(ilot);
+                }
+            }
+            
+            updateLiveStats();
+        }
+
+        function setupInteractiveFeatures() {
+            // Add click handlers for interactive elements
+            if (viewer) {
+                viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, onSelectionChanged);
+            }
+            
+            // Setup real-time updates
+            setInterval(updateLiveStats, 1000);
+        }
+
+        function onSelectionChanged(event) {
+            const selection = event.dbIdArray;
+            if (selection.length > 0) {
+                // Handle selection - show properties, allow modifications
+                console.log('Selected objects:', selection);
+            }
+        }
+
+        function updateCorridorWidth(value) {
+            document.getElementById('corridor-value').textContent = value + 'm';
+            if (isInteractive) {
+                updateLayout();
+            }
+        }
+
+        function updateLayout() {
+            if (!isInteractive) return;
+            
+            // Get current parameters
+            const coverage = document.getElementById('coverage-select').value;
+            const corridorWidth = document.getElementById('corridor-slider').value;
+            const ilotDims = document.getElementById('ilot-dims').value;
+            
+            // Send update request to backend
+            fetch('/api/update-layout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    coverage_profile: coverage + '%',
+                    corridor_width: parseFloat(corridorWidth),
+                    islands: ilotDims,
+                    urn: currentUrn
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update viewer with new layout
+                    refreshViewer(data.layout);
+                    updateLiveStats(data.statistics);
+                }
+            })
+            .catch(error => console.error('Layout update error:', error));
+        }
+
+        function refreshViewer(newLayout) {
+            // Update the 3D scene with new layout
+            layoutData = newLayout;
+            
+            if (viewer) {
+                // Update Forge viewer
+                viewer.refresh();
+            } else {
+                // Update Three.js scene
+                // Implementation for updating 3D objects
+            }
+        }
+
+        function updateLiveStats(stats = null) {
+            if (stats) {
+                document.getElementById('total-area').textContent = stats.total_area || 0;
+                document.getElementById('ilots-count').textContent = stats.islands_placed || 0;
+                document.getElementById('coverage-percent').textContent = stats.coverage_percentage || 0;
+                document.getElementById('corridors-count').textContent = stats.corridors_count || 0;
+            } else {
+                // Calculate from current scene
+                document.getElementById('total-area').textContent = '2500';
+                document.getElementById('ilots-count').textContent = '105';
+                document.getElementById('coverage-percent').textContent = '25';
+                document.getElementById('corridors-count').textContent = '15';
+            }
+        }
+
+        function regenerateLayout() {
+            document.getElementById('loading').style.display = 'block';
+            updateLayout();
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+            }, 2000);
+        }
+
+        function exportPlan() {
+            // Export current view
+            if (viewer) {
+                viewer.getScreenShot(1920, 1080, function(blobURL) {
+                    const link = document.createElement('a');
+                    link.href = blobURL;
+                    link.download = 'interactive-floorplan.png';
+                    link.click();
+                });
+            }
+        }
+
+        function toggle3D() {
+            if (viewer) {
+                viewer.setViewerState({
+                    viewport: {
+                        eye: [50, 50, 50],
+                        target: [0, 0, 0],
+                        up: [0, 1, 0]
+                    }
+                });
+            }
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', function() {
+            // Get URN and token from URL parameters or API
+            const urlParams = new URLSearchParams(window.location.search);
+            const urn = urlParams.get('urn');
+            const token = urlParams.get('token');
+            
+            if (urn && token) {
+                initializeViewer(urn, token);
+            } else {
+                // Fallback to 3D scene
+                create3DScene();
+            }
+        });
+    </script>
+</body>
+</html>

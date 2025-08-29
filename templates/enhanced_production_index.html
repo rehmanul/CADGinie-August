@@ -335,6 +335,9 @@
                     <button id="shareBtn" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition">
                         <i class="fas fa-share mr-2"></i>Share Result
                     </button>
+                    <button id="interactiveBtn" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
+                        <i class="fas fa-cube mr-2"></i>Interactive View
+                    </button>
                     <button id="exportBtn" class="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition">
                         <i class="fas fa-file-export mr-2"></i>Export CAD
                     </button>
@@ -673,6 +676,11 @@
                 // Setup download
                 document.getElementById('downloadBtn').onclick = () => {
                     window.open(result.download_url, '_blank');
+                };
+                
+                // Setup interactive viewer
+                document.getElementById('interactiveBtn').onclick = () => {
+                    window.open(result.interactive_url, '_blank');
                 };
                 
                 if (processingInterval) {
